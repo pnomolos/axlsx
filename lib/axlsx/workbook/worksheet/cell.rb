@@ -300,9 +300,9 @@ module Axlsx
     # @see Style.add_style
     def merge_style(opts = {})
       if @style
-        @style = @styles.merge_style(@style, opts)
+        @style = styles.merge_style(@style, opts)
       else
-        @style = @styles.add_style(opts)
+        @style = styles.add_style(opts)
       end
     end
 
