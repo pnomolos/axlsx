@@ -55,7 +55,7 @@ module Axlsx
       end
       result
     end
-    
+
     # Lock this list at the current size
     # @return [self]
     def lock
@@ -69,7 +69,7 @@ module Axlsx
       @locked_at = nil
       self
     end
-    
+
     def to_ary
       @list
     end
@@ -82,24 +82,28 @@ module Axlsx
     # one of the allowed types
     # @return [SimpleTypedList]
     def +(v)
-      v.each do |item| 
+      v.each do |item|
         DataTypeValidator.validate :SimpleTypedList_plus, @allowed_types, item
-        @list << item 
+        @list << item
       end
     end
 
-    # Concat operator
+    # Concat operator, won't duplicate objects (if they respond to dont_duplicate?)
     # @param [Any] v the data to be added
     # @raise [ArgumentError] if the value being added is not one fo the allowed types
     # @return [Integer] returns the index of the item added.
     def <<(v)
       DataTypeValidator.validate :SimpleTypedList_push, @allowed_types, v
-      @list << v
-      @list.size - 1
-    end 
-    
+      if v.respond_to?(:dont_duplicate?) && v.dont_duplicate? && idx = @list.index(v)
+        idx
+      else
+        @list << v
+        @list.size - 1
+      end
+    end
+
     alias :push :<<
-    
+
 
     # delete the item from the list
     # @param [Any] v The item to be deleted.
@@ -164,7 +168,7 @@ module Axlsx
         end
       }
     end
-                   
+
     def to_xml_string(str = '')
       classname = @allowed_types[0].name.split('::').last
       el_name = serialize_as.to_s || (classname[0,1].downcase + classname[1..-1])

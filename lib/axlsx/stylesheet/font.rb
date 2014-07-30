@@ -5,6 +5,17 @@ module Axlsx
   # @see Styles#add_style
   class Font
     include Axlsx::OptionsParser
+    include Exlsx::AttributeEquality
+
+    # Valid attributes to check for equality
+    def self.attributes
+      %w{name charset family b i u strike outline shadow condense extend sz color}.map{ |attr| attr.to_sym }
+    end
+
+    # Check for duplicate objects
+    def dont_duplicate?
+      true
+    end
 
     # Creates a new Font
     # @option options [String] name

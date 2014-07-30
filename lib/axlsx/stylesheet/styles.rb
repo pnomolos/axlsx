@@ -133,7 +133,7 @@ module Axlsx
     # @option options [Integer] family The font family to use.
     # @option options [String] font_name The name of the font to use
     # @option options [Integer] num_fmt The number format to apply
-    # @option options [String] format_code The formatting to apply. 
+    # @option options [String] format_code The formatting to apply.
     # @option options [Integer|Hash] border The border style to use.
     #   borders support style, color and edges options @see parse_border_options
     # @option options [String] bg_color The background color to apply to the cell
@@ -305,12 +305,12 @@ module Axlsx
 
     # parses Style#add_style options for borders.
     # @note noop if :border is not specified in options
-    # @option options [Hash|Integer] A border style definition hash or the index of an existing border. 
-    # Border style definition hashes must include :style and :color key-value entries and 
-    # may include an :edges entry that references an array of symbols identifying which border edges 
+    # @option options [Hash|Integer] A border style definition hash or the index of an existing border.
+    # Border style definition hashes must include :style and :color key-value entries and
+    # may include an :edges entry that references an array of symbols identifying which border edges
     # you wish to apply the style or any other valid Border initializer options.
     # If the :edges entity is not provided the style is applied to all edges of cells that reference this style.
-	# Also available :border_top, :border_right, :border_bottom and :border_left options with :style and/or :color 
+	# Also available :border_top, :border_right, :border_bottom and :border_left options with :style and/or :color
 	# key-value entries, which override :border values.
     # @example
     #   #apply a thick red border to the top and bottom
@@ -352,11 +352,86 @@ module Axlsx
         #If this is a standard xf we pull from numFmts the highest current and increment for num_fmt
         options[:num_fmt] ||= (@numFmts.map{ |num_fmt| num_fmt.numFmtId }.max + 1) if options[:type] != :dxf
         numFmt = NumFmt.new(:numFmtId => options[:num_fmt] || 0, :formatCode=> options[:format_code].to_s)
-        options[:type] == :dxf ? numFmt : (numFmts << numFmt; numFmt.numFmtId)
+        options[:type] == :dxf ? numFmt : numFmts[(numFmts << numFmt)].numFmtId
       else
         options[:num_fmt]
       end
     end
+
+    # Merges two styles together, overwriting the existing style's options with set options
+    # @option style_ref [Integer] The numeric reference of an existing style to merge with
+    # @option options [Hash] Options the same as you would pass to add_style
+    # @see Styles#add_style
+    def merge_style(style_ref, options = {})
+      options[:type] ||= :xf
+      raise ArgumentError, "Type must be one of [:xf, :dxf]" unless [:xf, :dxf].include?(options[:type])
+
+      _options = {
+        fill:       parse_fill_options(options),
+        font:       parse_font_options(options),
+        numFmt:     parse_num_fmt_options(options),
+        border:     parse_border_options(options),
+        alignment:  parse_alignment_options(options),
+        protection: parse_protection_options(options)
+      }.reject{ |k,v| v.nil? }
+      case options[:type]
+      when :dxf
+        merge_dxf_style(style_ref, _options)
+      else
+        merge_cellxfs_style(style_ref, _options)
+      end
+    end
+
+    # Merges dxf style together, overwriting the existing style's options with set options
+    # @option style_ref [Integer] The numeric reference of an existing style to merge with
+    # @option options [Hash] Options the same as you would pass to add_style
+    # @see Styles#add_style
+    def merge_dxf_style(style_ref, options = {})
+      current_style = dxfs[style_ref]
+      options = {
+        fill: current_style.fill,
+        font: current_style.font,
+        numFmt: current_style.numFmt,
+        border: current_style.border,
+        alignment: current_style.alignment
+      }.merge(options)
+
+      dxfs << Axlsx::Dxf.new(options)
+    end
+
+    # Merges cellxf style together, overwriting the existing style's options with set options
+    # @option style_ref [Integer] The numeric reference of an existing style to merge with
+    # @option options [Hash] Options the same as you would pass to add_style
+    # @see Styles#add_style
+    def merge_cellxfs_style(style_ref, _options = {})
+      return unless style_ref
+
+      current_style = cellXfs[style_ref]
+
+      options = {}
+      if _options[:fill]
+        options[:fillId] = current_style.fillId > 0 ? (fills << fills[current_style.fillId].merge(fills[_options[:fill]])) : _options[:fill]
+      end
+
+      if _options[:font]
+        options[:fontId] = current_style.fontId > 0 ? (fonts << fonts[current_style.fontId].merge(fonts[_options[:font]])) : _options[:font]
+      end
+
+      if _options[:border]
+        options[:borderId] = current_style.borderId > 0 ? (borders << borders[current_style.borderId].merge(borders[_options[:border]])) : _options[:border]
+      end
+
+      options = {
+        numFmtId:   _options[:numFmt]     || current_style.numFmtId,
+        alignment:  _options[:alignment]  || current_style.alignment,
+        protection: _options[:protection] || current_style.protection
+      }.merge(options)
+
+      return if 0 == options[:numFmtId] && options.reject{ |k,v| :numFmtId == k }.empty?
+
+      cellXfs << Axlsx::Xf.new(options)
+    end
+
 
     # Serializes the object
     # @param [String] str

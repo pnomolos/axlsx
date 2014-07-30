@@ -7,6 +7,19 @@ module Axlsx
 
     include Axlsx::SerializedAttributes
     include Axlsx::OptionsParser
+    include Exlsx::AttributeEquality
+
+    # Valid attributes to check for equality
+    def self.attributes
+      %w{alignment protection numFmtId fontId fillId borderId xfId quotePrefix pivotButton applyNumberFormat applyFont applyFill applyBorder applyAlignment applyProtection}.map{ |attr| attr.to_sym }
+    end
+
+    # Check for duplicate objects
+    def dont_duplicate?
+      true
+    end
+
+
     # Creates a new Xf object
     # @option options [Integer] numFmtId
     # @option options [Integer] fontId

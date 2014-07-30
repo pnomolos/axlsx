@@ -7,6 +7,18 @@ module Axlsx
   # @see GradientFill
   class Fill
 
+    include Exlsx::AttributeEquality
+
+    # Valid attributes to check for equality
+    def self.attributes
+      %w{fill_type}.map{ |attr| attr.to_sym }
+    end
+
+    # Check for duplicate objects
+    def dont_duplicate?
+      true
+    end
+
     # The type of fill
     # @return [PatternFill, GradientFill]
     attr_reader :fill_type

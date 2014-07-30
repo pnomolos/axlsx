@@ -51,6 +51,25 @@ module Axlsx
     # @see outline
     def outline=(v) Axlsx::validate_boolean v; @outline = v end
 
+    # Should we not duplicate this if it's the same as another border?
+    def dont_duplicate?
+      true
+    end
+
+    # Related to merging same styles
+    def ==(v)
+      false
+    end
+
+    # Merge this border's styles with a new border's styles
+    def merge(new_obj)
+      used_edges = new_obj.prs.map{|pr| pr.name}
+      self.prs.each do |pr|
+        new_obj.prs << pr.dup unless used_edges.include?(pr.name)
+      end
+      new_obj
+    end
+
     # Serializes the object
     # @param [String] str
     # @return [String]

@@ -6,6 +6,17 @@ module Axlsx
 
     include Axlsx::OptionsParser
     include Axlsx::SerializedAttributes
+    include Exlsx::AttributeEquality
+
+    # Valid attributes to check for equality
+    def self.attributes
+      %w{formatCode}.map{ |attr| attr.to_sym }
+    end
+
+    # Check for duplicate objects
+    def dont_duplicate?
+      true
+    end
 
     # Creates a new NumFmt object
     # @param [Hash] options Options for the number format object

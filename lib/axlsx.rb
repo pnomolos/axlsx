@@ -7,6 +7,7 @@ require 'axlsx/util/constants.rb'
 require 'axlsx/util/validators.rb'
 require 'axlsx/util/accessors.rb'
 require 'axlsx/util/serialized_attributes'
+require 'axlsx/util/attribute_equality'
 require 'axlsx/util/options_parser'
 # to be included with parsable intitites.
 #require 'axlsx/util/parser.rb'
@@ -137,7 +138,7 @@ module Axlsx
     str.delete!(CONTROL_CHARS)
     str
   end
-  
+
   # If value is boolean return 1 or 0
   # else return the value
   # @param [Object] value The value to process
