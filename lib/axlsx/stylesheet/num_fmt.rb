@@ -6,7 +6,7 @@ module Axlsx
 
     include Axlsx::OptionsParser
     include Axlsx::SerializedAttributes
-    include Exlsx::AttributeEquality
+    include Axlsx::AttributeEquality
 
     # Valid attributes to check for equality
     def self.attributes

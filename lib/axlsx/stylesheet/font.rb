@@ -5,7 +5,7 @@ module Axlsx
   # @see Styles#add_style
   class Font
     include Axlsx::OptionsParser
-    include Exlsx::AttributeEquality
+    include Axlsx::AttributeEquality
 
     # Valid attributes to check for equality
     def self.attributes
