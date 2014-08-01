@@ -130,6 +130,14 @@ module Axlsx
     s.gsub(/_(.)/){ $1.upcase }
   end
 
+  # Does a quick escape (just the 3 main XML chars are escaped)
+  # @param [String] s The string to escape
+  # @return [String]
+  def self.quick_escape(s="")
+    s = s.to_s
+    s.gsub('"','&quot;').gsub("<", '&lt;').gsub(">", '&gt;')
+  end
+
   # returns the provided string with all invalid control charaters
   # removed.
   # @param [String] str The string to process
