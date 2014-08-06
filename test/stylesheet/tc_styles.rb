@@ -232,4 +232,37 @@ class TestStyles < Minitest::Unit::TestCase
     style = @styles.add_style :bg_color=>"FF000000", :fg_color=>"FFFFFFFF", :sz=>13, :alignment=>{:horizontal=>:left}, :border=>{:style => :thin, :color => "FFFF0000"}, :hidden=>true, :locked=>true, :type => :dxf
     assert_equal(1, style, "returns the second dxfId")
   end
+
+  def test_merge_styles
+    style  = @styles.add_style(b: true, i: true)
+    style2 = @styles.merge_style(style, i: false)
+
+    refute_equal(style, style2, "styles are different")
+    refute_equal(@styles.cellXfs[style].fontId, @styles.cellXfs[style2].fontId)
+
+    style3 = @styles.merge_style(style, b: true, i: true)
+    refute_equal(style2, style3, "styles are different")
+    refute_equal(@styles.cellXfs[style2].fontId, @styles.cellXfs[style3].fontId, "different fontIds")
+
+    assert_equal(style, style3, "doesn't create a new style object")
+    assert_equal(@styles.cellXfs[style].fontId, @styles.cellXfs[style3].fontId, "same fontIds")
+  end
+
+  def test_merge_fonts
+    fonts_length = @styles.fonts.length
+
+    font  = Axlsx::Font.new(b: true)
+    font2 = Axlsx::Font.new(b: true)
+    assert_equal(font, font2, "same font")
+    @styles.fonts << font
+    @styles.fonts << font2
+    assert_equal(fonts_length + 1, @styles.fonts.length, "1 font added")
+    assert_equal(font.merge(font2), font, "merging results in same font")
+
+    font3 = Axlsx::Font.new(b: false)
+    refute_equal(font, font3, "different font")
+    @styles. fonts << font3
+    assert_equal(fonts_length + 2, @styles.fonts.length, "2 fonts added")
+    refute_equal(font.merge(font3), font, "merging results in different font")
+  end
 end

@@ -373,7 +373,7 @@ module Axlsx
         border:     parse_border_options(options),
         alignment:  parse_alignment_options(options),
         protection: parse_protection_options(options)
-      }.reject{ |k,v| v.nil? }
+      }
       case options[:type]
       when :dxf
         merge_dxf_style(style_ref, _options)
@@ -396,7 +396,7 @@ module Axlsx
         alignment: current_style.alignment
       }.merge(options)
 
-      dxfs << Axlsx::Dxf.new(options)
+      dxfs << Dxf.new(options)
     end
 
     # Merges cellxf style together, overwriting the existing style's options with set options
@@ -408,28 +408,28 @@ module Axlsx
 
       current_style = cellXfs[style_ref]
 
-      options = {}
+      fill = nil
       if _options[:fill]
-        options[:fillId] = current_style.fillId > 0 ? (fills << fills[current_style.fillId].merge(fills[_options[:fill]])) : _options[:fill]
+        fill = current_style.fillId > 0 ? (fills << fills[current_style.fillId].merge(fills[_options[:fill]])) : _options[:fill]
       end
 
+      font = nil
       if _options[:font]
-        options[:fontId] = current_style.fontId > 0 ? (fonts << fonts[current_style.fontId].merge(fonts[_options[:font]])) : _options[:font]
+        font = current_style.fontId > 0 ? (fonts << fonts[current_style.fontId].merge(fonts[_options[:font]])) : _options[:font]
       end
 
+      border = nil
       if _options[:border]
-        options[:borderId] = current_style.borderId > 0 ? (borders << borders[current_style.borderId].merge(borders[_options[:border]])) : _options[:border]
+        border = current_style.borderId > 0 ? (borders << borders[current_style.borderId].merge(borders[_options[:border]])) : _options[:border]
       end
 
-      options = {
-        numFmtId:   _options[:numFmt]     || current_style.numFmtId,
-        alignment:  _options[:alignment]  || current_style.alignment,
-        protection: _options[:protection] || current_style.protection
-      }.merge(options)
+      numFmt     = _options[:numFmt]     || current_style.numFmtId > 0 ? current_style.numFmtId : nil
+      alignment  = _options[:alignment]  || current_style.alignment
+      protection = _options[:protection] || current_style.protection
 
-      return if 0 == options[:numFmtId] && options.reject{ |k,v| :numFmtId == k }.empty?
+      xf = Xf.new :fillId=>fill || 0, :fontId=>font || 0, :numFmtId=>numFmt || 0, :borderId=>border || 0, :alignment => alignment, :protection => protection, :applyFill=>!fill.nil?, :applyFont=>!font.nil?, :applyNumberFormat =>!numFmt.nil?, :applyBorder=>!border.nil?, :applyAlignment => !alignment.nil?, :applyProtection => !protection.nil?
 
-      cellXfs << Axlsx::Xf.new(options)
+      cellXfs << xf
     end
 
 

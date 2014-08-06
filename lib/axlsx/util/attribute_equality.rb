@@ -10,8 +10,8 @@ module Axlsx
     def merge(new_obj)
       self.class.attributes.each do |opt|
         opt = opt.to_sym
-        if self.send(opt)
-          new_obj.send("#{opt}=", self.send(opt)) unless new_obj.send(opt)
+        unless self.send(opt).nil?
+          new_obj.send("#{opt}=", self.send(opt)) if new_obj.send(opt).nil?
         end
       end
       new_obj
