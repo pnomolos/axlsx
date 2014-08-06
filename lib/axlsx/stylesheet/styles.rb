@@ -427,7 +427,20 @@ module Axlsx
       alignment  = _options[:alignment]  || current_style.alignment
       protection = _options[:protection] || current_style.protection
 
-      xf = Xf.new :fillId=>fill || 0, :fontId=>font || 0, :numFmtId=>numFmt || 0, :borderId=>border || 0, :alignment => alignment, :protection => protection, :applyFill=>!fill.nil?, :applyFont=>!font.nil?, :applyNumberFormat =>!numFmt.nil?, :applyBorder=>!border.nil?, :applyAlignment => !alignment.nil?, :applyProtection => !protection.nil?
+      xf = Xf.new(
+        :fillId=>fill || current_style.fillId,
+        :fontId=>font || current_style.fontId,
+        :numFmtId=>numFmt || current_style.numFmtId,
+        :borderId=>border || current_style.borderId,
+        :alignment => alignment,
+        :protection => protection,
+        :applyFill=>!fill.nil?,
+        :applyFont=>!font.nil?,
+        :applyNumberFormat =>!numFmt.nil?,
+        :applyBorder=>!border.nil?,
+        :applyAlignment => !alignment.nil?,
+        :applyProtection => !protection.nil?
+      )
 
       cellXfs << xf
     end

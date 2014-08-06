@@ -244,8 +244,12 @@ class TestStyles < Minitest::Unit::TestCase
     refute_equal(style2, style3, "styles are different")
     refute_equal(@styles.cellXfs[style2].fontId, @styles.cellXfs[style3].fontId, "different fontIds")
 
-    assert_equal(style, style3, "doesn't create a new style object")
+    assert_equal(style, style3, "doesn't create a new font object")
     assert_equal(@styles.cellXfs[style].fontId, @styles.cellXfs[style3].fontId, "same fontIds")
+
+    style4 = @styles.merge_style(style, border: { style: :thin, color: "FFFF0000" })
+    refute_equal(style, style4)
+    assert_equal(@styles.cellXfs[style].fontId, @styles.cellXfs[style4].fontId, "same fontIds")
   end
 
   def test_merge_fonts
