@@ -265,8 +265,25 @@ class TestStyles < Test::Unit::TestCase
 
     font3 = Axlsx::Font.new(b: false)
     refute_equal(font, font3, "different font")
-    @styles. fonts << font3
+    @styles.fonts << font3
     assert_equal(fonts_length + 2, @styles.fonts.length, "2 fonts added")
     refute_equal(font.merge(font3), font, "merging results in different font")
+  end
+
+  def test_merge_formats
+    fmts_length = @styles.numFmts.length
+
+    fmt1 = Axlsx::NumFmt.new(formatCode: 'abba')
+    fmt2 = Axlsx::NumFmt.new(formatCode: 'abba')
+    assert_equal(fmt1, fmt2, "different numFmt")
+    @styles.numFmts << fmt1
+    @styles.numFmts << fmt2
+    assert_equal(fmts_length + 1, @styles.numFmts.length, "1 numFmt added")
+
+    fmt3 = Axlsx::NumFmt.new(formatCode: 'baab')
+    refute_equal(fmt1, fmt3, "different numFmt")
+    @styles.numFmts << fmt3
+    assert_equal(fmts_length + 2, @styles.numFmts.length, "2 numFmts added")
+    refute_equal(fmt1.merge(fmt3), fmt1, "merging results in different numFmt")
   end
 end
