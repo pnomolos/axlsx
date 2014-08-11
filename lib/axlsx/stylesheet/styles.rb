@@ -423,7 +423,7 @@ module Axlsx
         border = current_style.borderId > 0 ? (borders << borders[current_style.borderId].merge(borders[_options[:border]])) : _options[:border]
       end
 
-      numFmt     = _options[:numFmt]     || current_style.numFmtId > 0 ? current_style.numFmtId : nil
+      numFmt     = _options[:numFmt]     || (current_style.numFmtId > 0 ? current_style.numFmtId : nil)
       alignment  = _options[:alignment]  || current_style.alignment
       protection = _options[:protection] || current_style.protection
 
