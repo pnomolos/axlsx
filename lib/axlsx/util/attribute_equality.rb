@@ -3,7 +3,7 @@ module Axlsx
   module AttributeEquality
     # Check for equality (used to check for duplication)
     def ==(v)
-      self.class.attributes.all?{ |attr| v.send(attr.to_sym) == self.send(attr.to_sym) }
+      self.class.attributes.all?{ |attr| v.send(attr) == self.send(attr) }
     end
 
     # Attempt to merge this object with another object, only updating the new properties
