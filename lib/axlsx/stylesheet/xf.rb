@@ -16,7 +16,7 @@ module Axlsx
 
     # Check for duplicate objects
     def dont_duplicate?
-      false
+      true
     end
 
 
