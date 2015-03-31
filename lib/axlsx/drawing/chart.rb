@@ -11,6 +11,7 @@ module Axlsx
     # @param [GraphicalFrame] frame The frame that holds this chart.
     # @option options [Cell, String] title
     # @option options [Boolean] show_legend
+    # @option options [Symbol] legend_position
     # @option options [Array|String|Cell] start_at The X, Y coordinates defining the top left corner of the chart.
     # @option options [Array|String|Cell] end_at The X, Y coordinates defining the bottom right corner of the chart.
     def initialize(frame, options={})
@@ -20,10 +21,12 @@ module Axlsx
       @graphic_frame.anchor.drawing.worksheet.workbook.charts << self
       @series = SimpleTypedList.new Series
       @show_legend = true
+      @legend_position = :r
       @display_blanks_as = :gap
       @series_type = Series
       @title = Title.new
       @d_table = nil
+      @bg_color = nil
       parse_options options
       start_at(*options[:start_at]) if options[:start_at]
       end_at(*options[:end_at]) if options[:end_at]
@@ -74,6 +77,17 @@ module Axlsx
     # @return [Boolean]
     attr_reader :show_legend
 
+    # Set the location of the chart's legend
+    # @return [Symbol] The position of this legend
+    # @note
+    #  The following are allowed
+    #    :b
+    #    :l
+    #    :r
+    #    :t
+    #    :tr
+    attr_reader :legend_position
+
     # How to display blank values
     # Options are
     # * gap:  Display nothing
@@ -82,6 +96,10 @@ module Axlsx
     # @return [Symbol]
     # Default :gap (although this really should vary by chart type and grouping)
     attr_reader :display_blanks_as
+
+    # Background color for the chart
+    # @return [String]
+    attr_reader :bg_color
 
     # The relationship object for this chart.
     # @return [Relationship]
@@ -129,6 +147,9 @@ module Axlsx
     # @param [Integer] v must be between 1 and 48
     def style=(v) DataTypeValidator.validate "Chart.style", Integer, v, lambda { |arg| arg >= 1 && arg <= 48 }; @style = v; end
 
+    # @see legend_position
+    def legend_position=(v) RestrictionValidator.validate "Chart.legend_position", [:b, :l, :r, :t, :tr], v; @legend_position = v; end
+
     # backwards compatibility to allow chart.to and chart.from access to anchor markers
     # @note This will be disconinued in version 2.0.0. Please use the end_at method
     def to
@@ -147,6 +168,12 @@ module Axlsx
     def add_series(options={})
       @series_type.new(self, options)
       @series.last
+    end
+
+    # Assigns a background color to chart area
+    def bg_color=(v)
+      DataTypeValidator.validate(:color, Color, Color.new(:rgb => v))
+      @bg_color = v
     end
 
     # Serializes the object
@@ -171,7 +198,7 @@ module Axlsx
       str << '</c:plotArea>'
       if @show_legend
         str << '<c:legend>'
-        str << '<c:legendPos val="r"/>'
+        str << ('<c:legendPos val="' << @legend_position.to_s << '"/>')
         str << '<c:layout/>'
         str << '<c:overlay val="0"/>'
         str << '</c:legend>'
@@ -180,6 +207,16 @@ module Axlsx
       str << ('<c:dispBlanksAs val="' << display_blanks_as.to_s << '"/>')
       str << '<c:showDLblsOverMax val="1"/>'
       str << '</c:chart>'
+      if bg_color
+        str << '<c:spPr>'
+        str << '<a:solidFill>'
+        str << '<a:srgbClr val="' << bg_color << '"/>'
+        str << '</a:solidFill>'
+        str << '<a:ln>'
+        str << '<a:noFill/>'
+        str << '</a:ln>'
+        str << '</c:spPr>'
+      end
       str << '<c:printSettings>'
       str << '<c:headerFooter/>'
       str << '<c:pageMargins b="1.0" l="0.75" r="0.75" t="1.0" header="0.5" footer="0.5"/>'
