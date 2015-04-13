@@ -9,7 +9,7 @@ module Axlsx
 
     # Valid attributes to check for equality
     def self.attributes
-      %w{name charset family b i u strike outline shadow condense extend sz color}.map{ |attr| attr.to_sym }
+      @_attributes ||= %w{name charset family b i u strike outline shadow condense extend sz color}.map{ |attr| attr.to_sym }
     end
 
     # Check for duplicate objects

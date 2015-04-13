@@ -10,7 +10,7 @@ module Axlsx
 
     # Valid attributes to check for equality
     def self.attributes
-      %w{formatCode}.map{ |attr| attr.to_sym }
+      @_attributes ||= %w{formatCode}.map{ |attr| attr.to_sym }
     end
 
     # Check for duplicate objects

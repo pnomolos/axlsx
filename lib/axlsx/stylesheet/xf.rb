@@ -11,12 +11,12 @@ module Axlsx
 
     # Valid attributes to check for equality
     def self.attributes
-      %w{alignment protection numFmtId fontId fillId borderId xfId quotePrefix pivotButton applyNumberFormat applyFont applyFill applyBorder applyAlignment applyProtection}.map{ |attr| attr.to_sym }
+      @_attributes ||= %w{alignment protection numFmtId fontId fillId borderId xfId quotePrefix pivotButton applyNumberFormat applyFont applyFill applyBorder applyAlignment applyProtection}.map{ |attr| attr.to_sym }
     end
 
     # Check for duplicate objects
     def dont_duplicate?
-      true
+      false
     end
 
 
