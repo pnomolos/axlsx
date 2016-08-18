@@ -62,11 +62,16 @@ module Axlsx
     def page_setup_pr
       @page_setup_pr ||= PageSetUpPr.new
     end
-    
+
     # The OutlinePr for this sheet pr object
     # @return [OutlinePr]
     def outline_pr
       @outline_pr ||= OutlinePr.new
+    end
+
+    # @see tab_color
+    def tab_color=(v)
+      @tab_color ||= Color.new(:rgb => v)
     end
 
     # @see tab_color

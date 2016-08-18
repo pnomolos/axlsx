@@ -51,11 +51,8 @@ examples << :no_autowidth
 examples << :cached_formula
 examples << :page_breaks
 examples << :rich_text
-<<<<<<< HEAD
 examples << :multi_chart
-=======
 examples << :tab_color
->>>>>>> upstream/master
 
 p = Axlsx::Package.new
 wb = p.workbook
@@ -864,6 +861,20 @@ end
 #```
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+##Change tab color of sheet
+
+#```ruby
+if examples.include? :tab_color
+  wb.add_worksheet(:name => "Change Tab Color") do |sheet|
+    sheet.add_row ["Check", "out", "the", "Tab Color", "below!"]
+    sheet.sheet_pr.tab_color = "FFFF6666"
+  end
+end
+##```
+
+>>>>>>> 3c1c6a22ea327b2c2e9fc3c434344eb8b6378081
 #```ruby
 if examples.include? :multi_chart
   p = Axlsx::Package.new
