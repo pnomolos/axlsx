@@ -396,7 +396,7 @@ module Axlsx
     #  - scaling is not linear as font sizes increase
     def string_width(string, font_size)
       font_scale = font_size / 10.0
-      (string.to_s.count(Worksheet::THIN_CHARS) + 3.0) * (font_size/10.0)
+      (string.to_s.count(Worksheet::THIN_CHARS) + 3.0) * font_scale
     end
 
     # we scale the font size if bold style is applied to either the style font or
@@ -462,7 +462,11 @@ module Axlsx
         v
       when :time
         self.style = STYLE_DATE if self.style == 0
-        v.respond_to?(:to_time) ? v.to_time : v
+        if !v.is_a?(Time) && v.respond_to?(:to_time)
+          v.to_time
+        else
+          v
+        end
       when :float
         v.to_f
       when :integer

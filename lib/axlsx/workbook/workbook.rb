@@ -11,6 +11,7 @@ require 'axlsx/workbook/worksheet/cell_serializer.rb'
 require 'axlsx/workbook/worksheet/cell.rb'
 require 'axlsx/workbook/worksheet/page_margins.rb'
 require 'axlsx/workbook/worksheet/page_set_up_pr.rb'
+require 'axlsx/workbook/worksheet/outline_pr.rb'
 require 'axlsx/workbook/worksheet/page_setup.rb'
 require 'axlsx/workbook/worksheet/header_footer.rb'
 require 'axlsx/workbook/worksheet/print_options.rb'
@@ -94,6 +95,15 @@ require 'axlsx/workbook/worksheet/selection.rb'
     def use_shared_strings=(v)
       Axlsx::validate_boolean(v)
       @use_shared_strings = v
+    end
+
+    # If true reverse the order in which the workbook is serialized
+    # @return [Boolean]
+    attr_reader :is_reversed
+
+    def is_reversed=(v)
+      Axlsx::validate_boolean(v)
+      @is_reversed = v
     end
 
 
@@ -344,7 +354,11 @@ require 'axlsx/workbook/worksheet/selection.rb'
       str << ('<workbookPr date1904="' << @@date1904.to_s << '"/>')
       views.to_xml_string(str)
       str << '<sheets>'
-      worksheets.each { |sheet| sheet.to_sheet_node_xml_string(str) }
+      if is_reversed
+        worksheets.reverse_each { |sheet| sheet.to_sheet_node_xml_string(str) }
+      else
+        worksheets.each { |sheet| sheet.to_sheet_node_xml_string(str) }
+      end
       str << '</sheets>'
       defined_names.to_xml_string(str)
       unless pivot_tables.empty?

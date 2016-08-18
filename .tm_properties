@@ -1,0 +1,4 @@
+[ *.rb ]
+softTabs = true
+tabSize  = 2
+fileType = "source.ruby"
