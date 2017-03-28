@@ -1,7 +1,7 @@
 require 'tc_helper.rb'
 class TestSimpleTypedList < Minitest::Unit::TestCase
   def setup
-    @list = Axlsx::SimpleTypedList.new Fixnum
+    @list = Axlsx::SimpleTypedList.new Integer
   end
 
   def teardown

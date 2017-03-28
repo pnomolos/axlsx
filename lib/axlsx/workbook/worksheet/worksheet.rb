@@ -29,7 +29,7 @@ module Axlsx
       yield self if block_given?
     end
 
-    serializable_attributes :sheet_id, :name, :state
+    serializable_attributes :sheet_id, :state
 
     # Initalizes page margin, setup and print options
     # @param [Hash] options Options passed in from the initializer
@@ -557,7 +557,7 @@ module Axlsx
     # @example This would set the first and third column widhts but leave the second column in autofit state.
     #      ws.column_widths 7.2, nil, 3
     # @note For updating only a single column it is probably easier to just set the width of the ws.column_info[col_index].width directly
-    # @param [Integer|Float|Fixnum|nil] widths
+    # @param [Integer|Float|nil] widths
     def column_widths(*widths)
       widths.each_with_index do |value, index|
         next if value == nil
@@ -599,6 +599,7 @@ module Axlsx
       add_autofilter_defined_name_to_workbook
       str << '<sheet '
       serialized_attributes str
+      str << ('name="' << name << '" ')
       str << ('r:id="' << rId << '"></sheet>')
     end
 

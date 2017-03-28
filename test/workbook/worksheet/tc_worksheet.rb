@@ -323,6 +323,13 @@ class TestWorksheet < Minitest::Unit::TestCase
     assert_equal(doc.xpath('//xmlns:worksheet/xmlns:mergeCells/xmlns:mergeCell[@ref="E1:F1"]').size, 1)
   end
 
+  def test_to_xml_string_merge_cells_row
+    row = @ws.add_row [1, "two"]
+    @ws.merge_cells row
+    doc = Nokogiri::XML(@ws.to_xml_string)
+    assert_equal(doc.xpath('//xmlns:worksheet/xmlns:mergeCells/xmlns:mergeCell[@ref="A1:B1"]').size, 1)
+  end
+
   def test_to_xml_string_row_breaks
   @ws.add_page_break("A1")
     doc = Nokogiri::XML(@ws.to_xml_string)
@@ -475,8 +482,8 @@ class TestWorksheet < Minitest::Unit::TestCase
     @ws.add_row ["chasing windmills", "penut"]
     @ws.column_widths nil, 0.5
     assert_equal(@ws.column_info[1].width, 0.5, 'eat my width')
-    assert_raises(ArgumentError, 'only accept unsigned ints') { @ws.column_widths 2, 7, -1 }
-    assert_raises(ArgumentError, 'only accept Integer, Float or Fixnum') { @ws.column_widths 2, 7, "-1" }
+    assert_raise(ArgumentError, 'only accept unsigned ints') { @ws.column_widths 2, 7, -1 }
+    assert_raise(ArgumentError, 'only accept Integer or Float') { @ws.column_widths 2, 7, "-1" }
   end
 
   def test_protect_range

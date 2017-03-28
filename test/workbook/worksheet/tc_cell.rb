@@ -238,7 +238,7 @@ class TestCell < Minitest::Unit::TestCase
     @c.merge @row.cells.last
     assert_equal(@c.row.worksheet.send(:merged_cells).last, "A1:C1")
   end
-  
+
   def test_reverse_merge_with_cell
     @c.row.add_cell 2
     @c.row.add_cell 3
@@ -284,7 +284,7 @@ class TestCell < Minitest::Unit::TestCase
     c_xml = Nokogiri::XML(@c.to_xml_string(1,1))
     assert_equal(c_xml.xpath("/c[@s=1]").size, 1)
   end
-  
+
   def test_to_xml_string_with_run
     # Actually quite a number of similar run styles
     # but the processing should be the same
@@ -294,7 +294,7 @@ class TestCell < Minitest::Unit::TestCase
     @c.font_name = 'arial'
     @c.color = 'FF0000'
     c_xml = Nokogiri::XML(@c.to_xml_string(1,1))
-    assert(c_xml.xpath("//b"))
+    assert(c_xml.xpath("//b").any?)
   end
 
   def test_to_xml_string_formula
@@ -303,8 +303,8 @@ class TestCell < Minitest::Unit::TestCase
       sheet.add_row ["=IF(2+2=4,4,5)"]
     end
     doc = Nokogiri::XML(ws.to_xml_string)
-    assert(doc.xpath("//f[@text()='IF(2+2=4,4,5)']"))
-
+    doc.remove_namespaces!
+    assert(doc.xpath("//f[text()='IF(2+2=4,4,5)']").any?)
   end
 
   def test_to_xml_string_array_formula
@@ -314,9 +314,24 @@ class TestCell < Minitest::Unit::TestCase
     end
     doc = Nokogiri::XML(ws.to_xml_string)
     doc.remove_namespaces!
-    assert(doc.xpath("//f[text()='SUM(C2:C11*D2:D11)']"))
-    assert(doc.xpath("//f[@t='array']"))
-    assert(doc.xpath("//f[@ref='A1']"))
+    assert(doc.xpath("//f[text()='SUM(C2:C11*D2:D11)']").any?)
+    assert(doc.xpath("//f[@t='array']").any?)
+    assert(doc.xpath("//f[@ref='A1']").any?)
+  end
+
+  def test_to_xml_string_text_formula
+    p = Axlsx::Package.new
+    ws = p.workbook.add_worksheet do |sheet|
+      sheet.add_row ["=1+1", "-1+1"], type: :text
+    end
+    doc = Nokogiri::XML(ws.to_xml_string)
+    doc.remove_namespaces!
+
+    assert(doc.xpath("//f[text()='1+1']").empty?)
+    assert(doc.xpath("//t[text()='=1+1']").any?)
+
+    assert(doc.xpath("//f[text()='1+1']").empty?)
+    assert(doc.xpath("//t[text()='-1+1']").any?)
   end
 
   def test_font_size_with_custom_style_and_no_sz
@@ -335,17 +350,17 @@ class TestCell < Minitest::Unit::TestCase
     sz = @c.send(:font_size)
     assert_equal(sz, 52)
   end
-  
+
   def test_cell_with_sz
     @c.sz = 25
     assert_equal(25, @c.send(:font_size))
   end
-  
+
   def test_to_xml
     # TODO This could use some much more stringent testing related to the xml content generated!
     @ws.add_row [Time.now, Date.today, true, 1, 1.0, "text", "=sum(A1:A2)", "2013-01-13T13:31:25.123"]
     @ws.rows.last.cells[5].u = true
-    
+
     schema = Nokogiri::XML::Schema(File.open(Axlsx::SML_XSD))
     doc = Nokogiri::XML(@ws.to_xml_string)
     errors = []

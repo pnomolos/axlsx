@@ -46,6 +46,16 @@ class TestAxlsx < Minitest::Unit::TestCase
     assert_equal(Axlsx.cell_range([c2, c1], true), "'Sheet &lt;''&gt;&quot; 1'!$A$1:$B$1")
   end
 
+  def test_cell_range_row
+    p = Axlsx::Package.new
+    ws = p.workbook.add_worksheet
+    row = ws.add_row
+    row.add_cell
+    row.add_cell
+    row.add_cell
+    assert_equal("A1:C1", Axlsx.cell_range(row, false))
+  end
+
   def test_name_to_indices
     setup_wide
     @wide_test_points.each do |key, value|
